@@ -1,0 +1,136 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/turtle"))()
+
+local OwO = library:Window("Survive the Killer")
+
+OwO:Label("Credits to TheMugenKing", Color3.fromRGB(127, 143, 166))
+
+OwO:Button("Speed", function()
+   -- Script: Ubah WalkSpeed
+-- By @TheMugenKing
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+
+-- Ganti angka 100 sesuai kecepatan yang diinginkan
+humanoid.WalkSpeed = 100
+
+end)
+
+OwO:Button("Jump", function()
+   -- Infinite Jump Cepat Tapi Stabil
+local uis = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+local humanoid = char:WaitForChild("Humanoid")
+
+getgenv().InfJump = true
+
+uis.JumpRequest:Connect(function()
+    if getgenv().InfJump then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        task.wait()
+        hrp.Velocity = Vector3.new(0, 150, 0) -- Lebih halus dan aman
+    end
+end)
+
+end)
+
+OwO:Button("Esp", function()
+   -- Real ESP System by @TheMugenKing
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
+
+local function createESP(plr)
+    if plr == localPlayer then return end
+    local function onChar(char)
+        local hl = Instance.new("Highlight")
+        hl.Name = "ESP_Highlight"
+        hl.FillColor = Color3.fromRGB(255, 50, 50)
+        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+        hl.FillTransparency = 0.5
+        hl.OutlineTransparency = 0
+        hl.Adornee = char
+        hl.Parent = char
+
+        -- Tracer Line (from screen bottom to HumanoidRootPart)
+        local tracer = Drawing.new("Line")
+        tracer.Color = Color3.new(1, 0, 0)
+        tracer.Thickness = 2
+        tracer.Transparency = 1
+        tracer.Visible = true
+
+        local con
+        con = RunService.RenderStepped:Connect(function()
+            if not char or not char:FindFirstChild("HumanoidRootPart") then
+                tracer.Visible = false
+                return
+            end
+
+            local hrp = char.HumanoidRootPart
+            local pos, onscreen = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
+            if onscreen then
+                tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+                tracer.To = Vector2.new(pos.X, pos.Y)
+                tracer.Visible = true
+            else
+                tracer.Visible = false
+            end
+        end)
+
+        -- Simpan dalam char agar bisa dihapus nanti
+        char.AncestryChanged:Connect(function(_, parent)
+            if not parent then
+                tracer:Remove()
+                con:Disconnect()
+            end
+        end)
+    end
+
+    if plr.Character then
+        onChar(plr.Character)
+    end
+    plr.CharacterAdded:Connect(onChar)
+end
+
+local function removeESP(plr)
+    if plr.Character then
+        local hl = plr.Character:FindFirstChild("ESP_Highlight")
+        if hl then hl:Destroy() end
+    end
+end
+
+-- Apply ke semua player yang sudah ada
+for _, plr in ipairs(Players:GetPlayers()) do
+    if plr ~= localPlayer then
+        createESP(plr)
+    end
+end
+
+-- Auto ESP saat player join
+Players.PlayerAdded:Connect(function(plr)
+    createESP(plr)
+end)
+
+-- Hapus ESP saat leave
+Players.PlayerRemoving:Connect(function(plr)
+    removeESP(plr)
+end)
+
+end)
+
+OwO:Button("Teleport To Lobby Safe", function()
+   local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Posisi tujuan (naikin Y sedikit biar aman)
+local targetPosition = Vector3.new(-3.1, 259.9 + 5, -13.9)
+
+-- Teleport karakter
+character:PivotTo(CFrame.new(targetPosition))
+
+end)
